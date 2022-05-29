@@ -74,7 +74,6 @@ class Auth extends CI_Controller
         if ($this->session->userdata('email')) {
             redirect('user');
         }
-        // SET RULES
         $this->form_validation->set_rules('name', 'Full Name', 'required|trim');
         $this->form_validation->set_rules('phone', 'Phone Number ', 'required|regex_match[/^[0-9]{12}$/]');
         $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email|is_unique[user.email]', [
@@ -88,14 +87,12 @@ class Auth extends CI_Controller
         ]);
         $this->form_validation->set_rules('password2', 'Confirm Password', 'required|trim|matches[password1]');
 
-        // CHECK FORM VALIDATION
         if ($this->form_validation->run() == false) {
             $data['title'] = 'Registration';
             $this->load->view('templates/auth_header', $data);
             $this->load->view('auth/registration');
             $this->load->view('templates/auth_footer');
         } else {
-            // PREPARE DATA
             $email = $this->input->post('email', true);
             $data = [
                 'name'          => htmlspecialchars($this->input->post('name', true)),
@@ -110,66 +107,12 @@ class Auth extends CI_Controller
                 'date_created'  => time()
             ];
 
-            // PREPARE TOKEN
-            // $token = base64_encode(random_bytes(32));
-            // $user_token = [
-            //     'email' => $email,
-            //     'token' => $token,
-            //     'date_created' => time()
-            // ];
-
-
-            // SEND EMAIL
-            // $this->_sendEmail($token, 'verify');
-
-            // INSERT INTO DB
             $this->db->insert('user', $data);
-            // $this->db->insert('user_token', $user_token);
-
-            // SET FLASHDATA
-            $this->session->set_flashdata('message', '<div class="message message-success">Successfully registered, please activate your account! </div>');
+            $this->session->set_flashdata('message', '<div class="message message-success">Successfully registered, please login! </div>');
             redirect('auth');
         }
     }
 
-    private function _sendEmail($token, $type)
-    {
-        // SET CONFIG
-        $config = [
-            'protocol' => 'smtp',
-            'smtp_host' => 'ssl://smtp.gmail.com',
-            'smtp_user' => 'ojihalawa@gmail.com',
-            'smtp_pass' => 'selamatmalam97',
-            'smtp_port' => 465,
-            'mailtype' => 'html',
-            'charset' => 'utf-8'
-            // 'newline' => "\r\n"
-        ];
-
-        $this->load->library('email', $config);
-        $this->email->initialize($config);
-        $this->email->set_newline("\r\n");
-        $this->email->set_mailtype("html");
-
-        // PREPARE THE EMAIL
-        $this->email->from('ojihalawa@gmail.com', 'Oji Halawa');
-        $this->email->to($this->input->post('email'));
-
-        if ($type == 'verify') {
-            $this->email->subject('Account Verification!');
-            $this->email->message('Click this link to verify your account : <a href="' . base_url() . 'auth/verify?email=' . $this->input->post('email') . '&token=' . urlencode($token) .  '">Activate</a>');
-        } else if ($type == 'forgot') {
-            $this->email->subject('Reset Password!');
-            $this->email->message('Click this link to reset your password : <a href="' . base_url() . 'auth/resetpassword?email=' . $this->input->post('email') . '&token=' . urlencode($token) .  '">Reset Password</a>');
-        }
-
-        if ($this->email->send()) {
-            return true;
-        } else {
-            echo $this->email->print_debugger();
-            die;
-        }
-    }
 
     public function verify()
     {
@@ -258,7 +201,7 @@ class Auth extends CI_Controller
                 ];
 
                 $this->db->insert('user_token', $user_token);
-                $this->_sendEmail($token, 'forgot');
+                //$this->_sendEmail($token, 'forgot');
 
                 $this->session->set_flashdata('message', '<div class="message message-success">Please check your email to reset password! </div>');
                 redirect('auth/forgotpassword');
