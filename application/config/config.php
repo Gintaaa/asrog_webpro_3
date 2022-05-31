@@ -23,7 +23,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url'] = 'http://localhost/asrog/';
+$config['base_url'] = 'http://localhost/asrog_webpro_3/';
 
 /*
 |--------------------------------------------------------------------------
